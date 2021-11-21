@@ -4,7 +4,7 @@
   "packagerPort": 19000,
   "webpackServerPort": 19006,
   "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null
+  "expoServerNgrokUrl": "https://d6-hy7.sec05.app.exp.direct",
+  "packagerNgrokUrl": "https://packager.d6-hy7.sec05.app.exp.direct",
+  "ngrokPid": 23336
 }
