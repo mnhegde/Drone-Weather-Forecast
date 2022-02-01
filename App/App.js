@@ -1,29 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
+import 'react-native-gesture-handler'
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import {Link, NativeRouter, Route, Routes} from 'react-router-native'
-import Index from './Pages';
-import Settings from './Pages/settings';
+import { Image, View } from 'react-native-ui-lib'
+import {NativeRouter, Route, Routes} from 'react-router-native'
+import Index from './Pages/Index';
 
 export default function App() {
   return (
     <NativeRouter>
-      <View style={styles.container}>  
+      <View> 
         <Routes>
           <Route exact path="/" element={<Index/>}/>
-          <Route exact path="/settings" element={<Settings />} />
         </Routes>
-      </View>
+        <Image width="100%" height="100%"  source={require("./assets/Background.png")} key="Background" />
+      </View> 
     </NativeRouter>
     
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+};
