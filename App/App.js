@@ -7,11 +7,12 @@ import Index from './Pages/Index';
 export default function App() {
   return (
     <NativeRouter>
-      <View> 
+      <View flex center style={{backgroundColor:"black"}}> 
+      
         <Routes>
           <Route exact path="/" element={<Index/>}/>
         </Routes>
-        <Image width="100%" height="100%"  source={require("./assets/Background.png")} key="Background" />
+        
       </View> 
     </NativeRouter>
     
