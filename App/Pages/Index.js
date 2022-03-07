@@ -1,11 +1,17 @@
-import React from 'react'
+import React, {useState} from 'react'
 import View from 'react-native-ui-lib/view';
 import Text from 'react-native-ui-lib/text';
 import { Image } from 'react-native-ui-lib';
 import { Link } from 'react-router-native';
-import { TextInput } from 'react-native';
-
+import Select, { SelectItem } from '@redmin_delishaj/react-native-select';
 export default function Index() {
+    //data needs to be in this form to be passed into the select
+    const data = [
+        { text: 'Option 1', value: 1 },
+        { text: 'Option 2', value: 2 },
+        { text: 'Option 3', value: 3 },
+      ];
+      const [selectedItem, setSelectedItem] = useState();
     return (
         <View flex center width={"100%"} height="100%">
             <View style={{position: "absolute"}} width={"100%"} height={"100%"} >
@@ -15,7 +21,8 @@ export default function Index() {
             <Text color="white"  center style={{fontSize: 50, fontWeight: "bold"}}>DroneScout</Text>
             <Text center color="white" style={{fontSize: 15}}>Scout the weather before you take flight!</Text>
             <View backgroundColor='white' height={"5%"} center style={{marginTop:"5%", borderRadius: 20,  flexDirection: "row", justifyContent: "space-between"}}>
-                <TextInput style={{ marginLeft: "2%", width:"75%", fontSize: 20, color: "#707070"}} placeholder='Search for a location...'/>
+                <Select width={"85%"}  data={data}onSelect={value => setSelectedItem(value)}value={selectedItem} />
+          
                 <Link to="/data">
                     <Image style={{marginRight:"2%",}} source={require("../assets/arrow.png")} key="arrow"/>
                     </Link>

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.0",
+    "@redmin_delishaj/react-native-select": "^1.0.6",
     "expo": "~43.0.2",
     "expo-status-bar": "~1.1.0",
     "react": "17.0.1",
