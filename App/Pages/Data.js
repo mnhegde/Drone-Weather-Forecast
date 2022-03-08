@@ -17,7 +17,30 @@ export default function Data() {
       paddingLeft: d ? d : (b ? b : a)
     }
   }
-  let renderLayers = layerData.map((data,i)=>{
+  function getDir(angle){
+    var directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    var index = Math.round(((angle %= 360) < 0 ? angle + 360 : angle) / 22.5) % 16;
+    return directions[index]
+  }
+
+  const arrows = {
+    "N": require("../assets/N.png"),
+    "NNE": require("../assets/NNE.png"),
+    "NE": require("../assets/NE.png"),
+    "E": require("../assets/E.png"),
+    "ESE": require("../assets/ESE.png"),
+    "SE": require("../assets/SE.png"),
+    "S": require("../assets/S.png"),
+    "SSW": require("../assets/SSW.png"),
+    "SW": require("../assets/SW.png"),
+    "WSW": require("../assets/WSW.png"),
+    "W": require("../assets/W.png"),
+    "WNW": require("../assets/WNW.png"),
+    "NW": require("../assets/NW.png"),
+    "NNW": require("../assets/NNW.png"),
+  }
+
+   let renderLayers = layerData.map((data,i)=>{
       return(<View centerH style={{ flexDirection: "column", marginTop: "2%" }}> 
       <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: "2px", borderRadius: "9%", ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text> 
       </View>)
@@ -55,13 +78,13 @@ export default function Data() {
         <View center style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: "3%" }}>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>400+ ft</Text>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>5 knots</Text>
-          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>S @</Text>
+          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(19)} <Image resizeMode={"center"} source={arrows[getDir(19)]} key="dir" /></Text>
         </View>
         <Image width={"100%"} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
         <View center style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "3%" }}>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>0-400 ft</Text>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>5 knots</Text>
-          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>S @</Text>
+          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>S <Image resizeMode={"center"} source={arrows["N"]} key="dir" /></Text>
         </View>
 
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginTop: "3%", marginBottom: "3%" }}>Source: Metroblue</Text>
