@@ -8,7 +8,7 @@ export default function Data() {
   const [search, setSearch] = useState(false)
   const [settings, setSettings] = useState(false)
   const [layerData, setLayerData] = useState(["Loading..."])
-  const [countries, setCountries] = useState(["LA, CA"])
+  const [countriesJSX, setCountriesJSX] = useState()
   const [rainWarning, setRainWarning] = useState(false)
   const [windWarning, setWindWarning] = useState(false)
   const [turbulenceWarning, setTurbulenceWarning] = useState(false)
@@ -31,7 +31,16 @@ export default function Data() {
       setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
       setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
     })
-    }
+    fetch("http://20.90.82.229:5000/cities")
+    .then(response => response.json())
+    .then(json => {
+      console.log(json)
+      let renderCountries = json["city_domains"].map((data, i) => {
+        return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
+      })
+      setCountriesJSX(renderCountries)
+    })
+    }    
     myFunc()
   }, [])
 
@@ -83,13 +92,10 @@ export default function Data() {
       <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
     </View>)
   })
-  let renderCountries = countries.map((data, i) => {
-    return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
-  })
   return (
     <View flex centerH width={"100%"} height="100%">
       <View style={{ position: "absolute" }} width={"100%"} height={"100%"} >
-        <Image style={{width: "100%", height: "100%"}} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
+        <Image style={{ width: "100%", height: "100%" }} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
       </View>
       <Text color="white" center style={{ fontSize: 30, fontWeight: "bold", marginTop: "10%", marginBottom: "10%" }}>DroneScout</Text>
       <View width={"95%"} backgroundColor="#5D94B0" style={{ flexDirection: "column", opacity: .85, borderRadius: 15 }}>
@@ -201,7 +207,7 @@ export default function Data() {
             <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Location Select</Text>
           </View>
-          {renderCountries}
+          {countriesJSX}
         </View>}
       </Dialog>
 
