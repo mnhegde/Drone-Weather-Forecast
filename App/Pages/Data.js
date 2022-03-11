@@ -7,7 +7,7 @@ import * as Progress from 'react-native-progress';
 export default function Data() {
   const [search, setSearch] = useState(false)
   const [settings, setSettings] = useState(false)
-  const [layerData, setLayerData] = useState(["1000 ft", "400 ft"])
+  const [layerData, setLayerData] = useState(["Loading..."])
   const [countries, setCountries] = useState(["LA, CA"])
   const [rainWarning, setRainWarning] = useState(false)
   const [windWarning, setWindWarning] = useState(false)
@@ -15,12 +15,25 @@ export default function Data() {
   const [floodWarning, setFloodWarning] = useState(false)
   const [usingFt, setUsingFt] = useState(true)
   const [usingKnots, setUsingKnots] = useState(true)
+  const [chanceOfRain, setChanceOfRain] = useState("Loading...")
+  const [progressBar, setProgressBar] = useState()
+  const [windData, setWindData] = useState({speedAbove: "Loading...", directionAbove: "Loading...", speedGround: "Loading...", directionGround: "Loading..."})
 
-  useEffect(()=>{
-    fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
+
+  useEffect(() => {
+    async function myFunc() {
+      fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
     .then(response =>response.json())
-    .then(json => console.log(json))
-  })
+    .then(json => {
+      console.log(json);
+      setChanceOfRain(json["forecast_data"]["precipitation"]["chance_of_rain"])
+      setProgressBar(<Progress.Bar progress={json["forecast_data"]["precipitation"]["chance_of_rain"]/100} width={200} color="white" />)
+      setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
+      setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+    })
+    }
+    myFunc()
+  }, [])
 
   function toggleFt() {
     if (usingFt) setUsingFt(false)
@@ -48,23 +61,24 @@ export default function Data() {
   }
 
   const arrows = {
-    "N": require("../assets/N.png"),
-    "NNE": require("../assets/NNE.png"),
-    "NE": require("../assets/NE.png"),
-    "E": require("../assets/E.png"),
-    "ESE": require("../assets/ESE.png"),
-    "SE": require("../assets/SE.png"),
-    "S": require("../assets/S.png"),
-    "SSW": require("../assets/SSW.png"),
-    "SW": require("../assets/SW.png"),
-    "WSW": require("../assets/WSW.png"),
-    "W": require("../assets/W.png"),
-    "WNW": require("../assets/WNW.png"),
-    "NW": require("../assets/NW.png"),
-    "NNW": require("../assets/NNW.png"),
+    "N": require("../assets/compassArrows/N.png"),
+    "NNE": require("../assets/compassArrows/NNE.png"),
+    "NE": require("../assets/compassArrows/NE.png"),
+    "E": require("../assets/compassArrows/E.png"),
+    "ESE": require("../assets/compassArrows/ESE.png"),
+    "SE": require("../assets/compassArrows/SE.png"),
+    "S": require("../assets/compassArrows/S.png"),
+    "SSW": require("../assets/compassArrows/SSW.png"),
+    "SW": require("../assets/compassArrows/SW.png"),
+    "WSW": require("../assets/compassArrows/WSW.png"),
+    "W": require("../assets/compassArrows/W.png"),
+    "WNW": require("../assets/compassArrows/WNW.png"),
+    "NW": require("../assets/compassArrows/NW.png"),
+    "NNW": require("../assets/compassArrows/NNW.png"),
   }
 
   let renderLayers = layerData.map((data, i) => {
+    data = typeof data == "number" ? data + " ft" : data;
     return (<View key={i} centerH style={{ flexDirection: "column", marginTop: "2%" }}>
       <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
     </View>)
@@ -97,8 +111,8 @@ export default function Data() {
 
         </View>
         <View center style={{ flexDirection: "column", justifyContent: "space-between", marginBottom: "3%" }}>
-          <Text color="white" center style={{ fontSize: 20, fontWeight: "bold", marginRight: "3%", marginBottom: "3%" }}>50%</Text>
-          <Progress.Bar progress={0.5} width={200} color="white" />
+          <Text color="white" center style={{ fontSize: 20, fontWeight: "bold", marginRight: "3%", marginBottom: "3%" }}>{chanceOfRain + "%"}</Text>
+          {progressBar}
 
         </View>
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
@@ -122,14 +136,14 @@ export default function Data() {
 
         <View center style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: "3%" }}>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>400+ ft</Text>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>5 knots</Text>
-          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(19)} <Image resizeMode={"center"} source={arrows[getDir(19)]} key="dir" /></Text>
+          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{windData.speedAbove + " m/s"}</Text>
+          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionAbove)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionAbove)]} key="dir" /></Text>
         </View>
         <Image width={"100%"} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
         <View center style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "3%" }}>
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>0-400 ft</Text>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>5 knots</Text>
-          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>S <Image resizeMode={"center"} source={arrows["N"]} key="dir" /></Text>
+          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{windData.speedGround + " m/s"}</Text>
+          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionGround)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionGround)]} key="dir" /></Text>
         </View>
 
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginTop: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
