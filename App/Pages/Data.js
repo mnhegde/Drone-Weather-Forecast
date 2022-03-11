@@ -7,8 +7,8 @@ import * as Progress from 'react-native-progress';
 export default function Data() {
   const [search, setSearch] = useState(false)
   const [settings, setSettings] = useState(false)
-  const [layerData, setLayerData] = useState(["1000 ft", "400 ft"])
-  const [countries, setCountries] = useState(["LA, CA"])
+  const [layersJSX, setLayersJSX] = useState()
+  const [countriesJSX, setCountriesJSX] = useState()
   const [rainWarning, setRainWarning] = useState(false)
   const [windWarning, setWindWarning] = useState(false)
   const [turbulenceWarning, setTurbulenceWarning] = useState(false)
@@ -16,11 +16,26 @@ export default function Data() {
   const [usingFt, setUsingFt] = useState(true)
   const [usingKnots, setUsingKnots] = useState(true)
 
-  useEffect(()=>{
-    fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
-    .then(response =>response.json())
-    .then(json => console.log(json))
-  })
+  useEffect(() => {
+    fetch("http://20.90.82.229:5000/cities")
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        let renderCountries = json["city_domains"].map((data, i) => {
+          return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
+        })
+        setCountriesJSX(renderCountries)
+
+        let layers = ["100ft"] //SET EQUAL TO DATA FROM API
+        let renderLayers = layers.map((data, i) => {
+          return (<View key={i} centerH style={{ flexDirection: "column", marginTop: "2%" }}>
+            <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
+          </View>)
+
+        })
+        setLayersJSX(renderLayers)
+      })
+  }, [])
 
   function toggleFt() {
     if (usingFt) setUsingFt(false)
@@ -64,18 +79,11 @@ export default function Data() {
     "NNW": require("../assets/NNW.png"),
   }
 
-  let renderLayers = layerData.map((data, i) => {
-    return (<View key={i} centerH style={{ flexDirection: "column", marginTop: "2%" }}>
-      <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
-    </View>)
-  })
-  let renderCountries = countries.map((data, i) => {
-    return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
-  })
+
   return (
     <View flex centerH width={"100%"} height="100%">
       <View style={{ position: "absolute" }} width={"100%"} height={"100%"} >
-        <Image style={{width: "100%", height: "100%"}} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
+        <Image style={{ width: "100%", height: "100%" }} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
       </View>
       <Text color="white" center style={{ fontSize: 30, fontWeight: "bold", marginTop: "10%", marginBottom: "10%" }}>DroneScout</Text>
       <View width={"95%"} backgroundColor="#5D94B0" style={{ flexDirection: "column", opacity: .85, borderRadius: 15 }}>
@@ -149,7 +157,7 @@ export default function Data() {
           <Image resizeMode={"center"} source={require("../assets/Turbulence.png")} key="Turbulence" />
           <Text color="white" center style={{ fontSize: 25, fontWeight: "bold" }}>Turbulent Atmospheric Layers</Text>
         </View>
-        {renderLayers}
+        {layersJSX}
 
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginTop: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
       </View>
@@ -187,7 +195,7 @@ export default function Data() {
             <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Location Select</Text>
           </View>
-          {renderCountries}
+          {countriesJSX}
         </View>}
       </Dialog>
 
