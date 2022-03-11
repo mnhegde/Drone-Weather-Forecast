@@ -16,6 +16,12 @@ export default function Data() {
   const [usingFt, setUsingFt] = useState(true)
   const [usingKnots, setUsingKnots] = useState(true)
 
+  useEffect(()=>{
+    fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
+    .then(response =>response.json())
+    .then(json => console.log(json))
+  })
+
   function toggleFt() {
     if (usingFt) setUsingFt(false)
     else setUsingFt(true)
@@ -26,9 +32,6 @@ export default function Data() {
     else setUsingKnots(true)
   }
 
-  function fetchData() {
-    console.log("test");
-  }
 
   function padding(a, b, c, d) {
     return {
@@ -62,20 +65,20 @@ export default function Data() {
   }
 
   let renderLayers = layerData.map((data, i) => {
-    return (<View centerH style={{ flexDirection: "column", marginTop: "2%" }}>
-      <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: .09, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
+    return (<View key={i} centerH style={{ flexDirection: "column", marginTop: "2%" }}>
+      <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
     </View>)
   })
   let renderCountries = countries.map((data, i) => {
-    return (<TouchableOpacity ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
+    return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
   })
   return (
     <View flex centerH width={"100%"} height="100%">
       <View style={{ position: "absolute" }} width={"100%"} height={"100%"} >
-        <Image width={"100%"} height={"100%"} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
+        <Image style={{width: "100%", height: "100%"}} resizeMode={"stretch"} source={require("../assets/BackgroundData.png")} key="Background" />
       </View>
       <Text color="white" center style={{ fontSize: 30, fontWeight: "bold", marginTop: "10%", marginBottom: "10%" }}>DroneScout</Text>
-      <View width={"95%"} backgroundColor="#5D94B0" style={{ flexDirection: "column", opacity: 85, borderRadius: 15 }}>
+      <View width={"95%"} backgroundColor="#5D94B0" style={{ flexDirection: "column", opacity: .85, borderRadius: 15 }}>
         {rainWarning && (
           <View width={"96%"} centerH backgroundColor="#DB9706" style={{ marginLeft: "2%", marginRight: "2%", marginTop: "2%", marginBottom: "2%", flexDirection: "row", borderRadius: 15 }}>
             <View centerH style={{ marginTop: "2%", marginBottom: "2%", flexDirection: "row" }}>
@@ -101,7 +104,7 @@ export default function Data() {
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
 
       </View>
-      <View width={"95%"} backgroundColor="#5D94B0" style={{ opacity: 85, borderRadius: 15, marginTop: "5%" }}>
+      <View width={"95%"} backgroundColor="#5D94B0" style={{ opacity: .85, borderRadius: 15, marginTop: "5%" }}>
         {windWarning && (
           <View width={"96%"} centerH backgroundColor="#DB9706" style={{ marginLeft: "2%", marginRight: "2%", marginTop: "2%", marginBottom: "2%", flexDirection: "row", borderRadius: 15 }}>
             <View centerH style={{ marginTop: "2%", marginBottom: "2%", flexDirection: "row" }}>
@@ -131,7 +134,7 @@ export default function Data() {
 
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginTop: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
       </View>
-      <View width={"95%"} backgroundColor="#5D94B0" style={{ opacity: 85, borderRadius: 15, marginTop: "5%" }}>
+      <View width={"95%"} backgroundColor="#5D94B0" style={{ opacity: .85, borderRadius: 15, marginTop: "5%" }}>
         {turbulenceWarning && (
           <View width={"96%"} centerH backgroundColor="#DB9706" style={{ marginLeft: "2%", marginRight: "2%", marginTop: "2%", marginBottom: "2%", flexDirection: "row", borderRadius: 15 }}>
             <View centerH style={{ marginTop: "2%", marginBottom: "2%", flexDirection: "row" }}>

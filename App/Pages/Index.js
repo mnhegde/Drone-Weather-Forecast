@@ -15,7 +15,7 @@ export default function Index() {
     return (
         <View flex center width={"100%"} height="100%">
             <View style={{position: "absolute"}} width={"100%"} height={"100%"} >
-            <Image width={"100%"} height={"100%"} resizeMode={"stretch"} source={require("../assets/Background.png")} key="Background" />
+            <Image style={{width: "100%", height: "100%"}} resizeMode={"stretch"} source={require("../assets/Background.png")} key="Background" />
             </View>
             <Image  width="40%" height="20%" resizeMode={"contain"} source={require("../assets/landingIcon.png")} key="icon"/>
             <Text color="white"  center style={{fontSize: 50, fontWeight: "bold"}}>DroneScout</Text>
