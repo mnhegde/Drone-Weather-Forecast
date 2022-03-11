@@ -21,14 +21,11 @@ export default function Index() {
             <Text color="white"  center style={{fontSize: 50, fontWeight: "bold"}}>DroneScout</Text>
             <Text center color="white" style={{fontSize: 15}}>Scout the weather before you take flight!</Text>
             <View backgroundColor='white' height={"5%"} center style={{marginTop:"5%", borderRadius: 20,  flexDirection: "row", justifyContent: "space-between"}}>
-                <Select width={"85%"}  data={data}onSelect={value => setSelectedItem(value)}value={selectedItem} />
-          
+                <Select textBoxStyle={{height: "70%", borderRadius: 20}} width={"85%"}  data={data}onSelect={value => setSelectedItem(value)}value={selectedItem} />
                 <Link to="/data">
                     <Image style={{marginRight:"2%",}} source={require("../assets/arrow.png")} key="arrow"/>
                     </Link>
             </View>
-            
-        
         </View>
     )
 }
