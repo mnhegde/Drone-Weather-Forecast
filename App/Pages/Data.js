@@ -18,14 +18,15 @@ export default function Data() {
   const [usingKnots, setUsingKnots] = useState(true)
   const [chanceOfRain, setChanceOfRain] = useState("Loading...")
   const [progressBar, setProgressBar] = useState()
+  const [city, setCity] = useState("Choosing Location...")
   const [windData, setWindData] = useState({speedAbove: "Loading...", directionAbove: "Loading...", speedGround: "Loading...", directionGround: "Loading..."})
-  const [city, setCity] = useState()
 
   async function updateCity(c){
     setCity(c)
-    await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
+    await fetch(`http://20.90.82.229:5000/forecast?location=${c}`)
   .then(response =>response.json())
   .then(json => {
+    console.log(json)
     let data = json["forecast_data"]
       setChanceOfRain(data["precipitation"]["chance_of_rain"])
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
@@ -48,12 +49,12 @@ export default function Data() {
     }
   });
   useEffect(async() => {
-    
       let c =  await AsyncStorage.getItem("city")
       setCity(c)
-      await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
+      await fetch(`http://20.90.82.229:5000/forecast?location=${c}`)
     .then(response =>response.json())
     .then(json => {
+      console.log(json)
       let data = json["forecast_data"]
       setChanceOfRain(data["precipitation"]["chance_of_rain"])
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
@@ -71,12 +72,13 @@ export default function Data() {
       setTurbulenceWarning(true);
       */
       
-      /* for scrolling  
+      /* FOR SCROLLING
       <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}> 
       for everything except footer
       automaticallyAdjustContentInsets={false}
       */
     })
+    
     fetch("http://20.90.82.229:5000/cities")
     .then(response => response.json())
     .then(json => {
@@ -258,7 +260,7 @@ export default function Data() {
       <Dialog visible={settings} onDismiss={() => setSettings(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
           <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
-            <Image resizeMode={"stretch"} source={require("../assets/Settings.png")} key="Settings" />
+            <Image resizeMode={"stretch"} style={styles.tinyLogo} source={require("../assets/Settings.png")} key="Settings" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Settings</Text>
           </View>
           <View style={{ flexDirection: "column", marginLeft: "3%", marginRight: "3%" }}>
