@@ -4,6 +4,7 @@ import Text from 'react-native-ui-lib/text';
 import { Image, Dialog, PanningProvider } from 'react-native-ui-lib';
 import { TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import * as Progress from 'react-native-progress';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Data() {
   const [search, setSearch] = useState(false)
   const [settings, setSettings] = useState(false)
@@ -18,17 +19,39 @@ export default function Data() {
   const [chanceOfRain, setChanceOfRain] = useState("Loading...")
   const [progressBar, setProgressBar] = useState()
   const [windData, setWindData] = useState({speedAbove: "Loading...", directionAbove: "Loading...", speedGround: "Loading...", directionGround: "Loading..."})
+  const [city, setCity] = useState()
 
+  async function updateCity(c){
+    setCity(c)
+    await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
+  .then(response =>response.json())
+  .then(json => {
+    let data = json["forecast_data"]
+      setChanceOfRain(data["precipitation"]["chance_of_rain"])
+      setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
+      setWindData({speedAbove: data["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: data["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: data["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: data["aviation"]["ground_400ft_wind"]["direction_degrees"]})
+      setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+      
+      //check for warnings
+      if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
+      else setRainWarning(false)
+      if (data["agriculture"]["warnings"] != "None") setFloodWarning(true)
+      else setFloodWarning(false)
+  }).catch(e => console.log(e))
+  setSearch(false)
+
+  }
   const styles = StyleSheet.create({
     tinyLogo: {
       width: 50,
       height: 50,
     }
   });
-
-  useEffect(() => {
-    async function myFunc() {
-      fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
+  useEffect(async() => {
+    
+      let c =  await AsyncStorage.getItem("city")
+      setCity(c)
+      await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
     .then(response =>response.json())
     .then(json => {
       let data = json["forecast_data"]
@@ -38,8 +61,10 @@ export default function Data() {
       setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
       
       //check for warnings
-      if(data["precipitation"]["warnings"] == "None") setRainWarning(true)
-      if (data["agriculture"]["warnings"] == "None") setFloodWarning(true)
+      if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
+      else setRainWarning(false)
+      if (data["agriculture"]["warnings"] != "None") setFloodWarning(true)
+      else setFloodWarning(false)
       
       /* define conditions for these warnings
       setWindWarning(true);
@@ -55,14 +80,12 @@ export default function Data() {
     fetch("http://20.90.82.229:5000/cities")
     .then(response => response.json())
     .then(json => {
-      console.log(json)
       let renderCountries = json["city_domains"].map((data, i) => {
-        return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
+        return (<TouchableOpacity onPress={()=>updateCity(data)} key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
       })
       setCountriesJSX(renderCountries)
-    })
-    }    
-    myFunc()
+    }).catch(e => console.log(e))
+
   }, [])
 
   function toggleFt() {
@@ -93,9 +116,11 @@ export default function Data() {
     "N": require("../assets/compassArrows/N.png"),
     "NNE": require("../assets/compassArrows/NNE.png"),
     "NE": require("../assets/compassArrows/NE.png"),
+    "ENE": require("../assets/compassArrows/ENE.png"),
     "E": require("../assets/compassArrows/E.png"),
     "ESE": require("../assets/compassArrows/ESE.png"),
     "SE": require("../assets/compassArrows/SE.png"),
+    "SSE": require("../assets/compassArrows/SSE.png"),
     "S": require("../assets/compassArrows/S.png"),
     "SSW": require("../assets/compassArrows/SSW.png"),
     "SW": require("../assets/compassArrows/SW.png"),
@@ -206,7 +231,7 @@ export default function Data() {
 
       <View width={"100%"} centerV backgroundColor="white" style={{ marginTop: "auto", borderRadius: 15 }} height={"10%"} >
         <View style={{ justifyContent: "space-between", flexDirection: "row", }} >
-          <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>City, Country</Text>
+          <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>{city}</Text>
           <View style={{ flexDirection: "row", marginRight: "3%", justifyContent: "space-between" }} width="20%">
             <TouchableOpacity onPress={() => setSearch(true)}>
               <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
@@ -222,7 +247,7 @@ export default function Data() {
 
       <Dialog visible={search} onDismiss={() => setSearch(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
-          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: "2px", borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
+          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
             <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Location Select</Text>
           </View>
@@ -232,7 +257,7 @@ export default function Data() {
 
       <Dialog visible={settings} onDismiss={() => setSettings(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
-          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: "2px", borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
+          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
             <Image resizeMode={"stretch"} source={require("../assets/Settings.png")} key="Settings" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Settings</Text>
           </View>
