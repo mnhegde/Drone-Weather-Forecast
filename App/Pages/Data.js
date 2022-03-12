@@ -26,12 +26,20 @@ export default function Data() {
     await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
   .then(response =>response.json())
   .then(json => {
-    setChanceOfRain(json["forecast_data"]["precipitation"]["chance_of_rain"])
-    setProgressBar(<Progress.Bar progress={json["forecast_data"]["precipitation"]["chance_of_rain"]/100} width={200} color="white" />)
-    setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
-    setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+    let data = json["forecast_data"]
+      setChanceOfRain(data["precipitation"]["chance_of_rain"])
+      setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
+      setWindData({speedAbove: data["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: data["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: data["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: data["aviation"]["ground_400ft_wind"]["direction_degrees"]})
+      setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+      
+      //check for warnings
+      if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
+      else setRainWarning(false)
+      if (data["agriculture"]["warnings"] != "None") setFloodWarning(true)
+      else setFloodWarning(false)
   }).catch(e => console.log(e))
   setSearch(false)
+
   }
   const styles = StyleSheet.create({
     tinyLogo: {
@@ -53,8 +61,10 @@ export default function Data() {
       setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
       
       //check for warnings
-      if(data["precipitation"]["warnings"] == "None") setRainWarning(true)
-      if (data["agriculture"]["warnings"] == "None") setFloodWarning(true)
+      if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
+      else setRainWarning(false)
+      if (data["agriculture"]["warnings"] != "None") setFloodWarning(true)
+      else setFloodWarning(false)
       
       /* define conditions for these warnings
       setWindWarning(true);
