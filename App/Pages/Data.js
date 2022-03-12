@@ -21,6 +21,11 @@ export default function Data() {
   const [city, setCity] = useState("Choosing Location...")
   const [windData, setWindData] = useState({speedAbove: "Loading...", directionAbove: "Loading...", speedGround: "Loading...", directionGround: "Loading..."})
 
+  var feetToMeterConversion = 0.31;
+  var meterToFeetConversion = 3.28;
+  var msToKnotsConversion = 1.94;
+  var knotsToMSConversion = 0.51;
+
   async function updateCity(c){
     setCity(c)
     await fetch(`http://20.90.82.229:5000/forecast?location=${c}`)
@@ -32,7 +37,7 @@ export default function Data() {
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
       setWindData({speedAbove: data["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: data["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: data["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: data["aviation"]["ground_400ft_wind"]["direction_degrees"]})
       setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
-      
+
       //check for warnings
       if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
       else setRainWarning(false)
@@ -60,25 +65,25 @@ export default function Data() {
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
       setWindData({speedAbove: data["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: data["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: data["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: data["aviation"]["ground_400ft_wind"]["direction_degrees"]})
       setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
-      
+
       //check for warnings
       if(data["precipitation"]["warnings"] != "None") setRainWarning(true)
       else setRainWarning(false)
       if (data["agriculture"]["warnings"] != "None") setFloodWarning(true)
       else setFloodWarning(false)
-      
+
       /* define conditions for these warnings
       setWindWarning(true);
       setTurbulenceWarning(true);
       */
-      
+
       /* FOR SCROLLING
-      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}> 
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
       for everything except footer
       automaticallyAdjustContentInsets={false}
       */
     })
-    
+
     fetch("http://20.90.82.229:5000/cities")
     .then(response => response.json())
     .then(json => {
@@ -90,14 +95,35 @@ export default function Data() {
 
   }, [])
 
+  var units = " ft"
+  var lastWasFt = true
+  var lastWasMS = true
+
   function toggleFt() {
-    if (usingFt) setUsingFt(false)
-    else setUsingFt(true)
+    lastWasFt = usingFt
+    if (usingFt)
+    {
+      setUsingFt(false)
+      units = " m"
+    }
+    else
+    {
+      setUsingFt(true)
+      units = " ft"
+    }
   }
 
   function toggleKnots() {
-    if (usingKnots) setUsingKnots(false)
-    else setUsingKnots(true)
+    lastWasMS = usingKnots
+
+    if (usingKnots)
+    {
+      setUsingKnots(false)
+    }
+    else
+    {
+      setUsingKnots(true)
+    }
   }
 
   function padding(a, b, c, d) {
@@ -134,7 +160,9 @@ export default function Data() {
   }
 
   let renderLayers = layerData.map((data, i) => {
-    data = typeof data == "number" ? data + " ft" : data;
+    data = lastWasFt ? (usingFt ? data : data*feetToMeterConversion ) : (usingFt ? data*meterToFeetConversion : data )
+    data = typeof data == "number" ? data : data;
+    data = usingFt ? data + " ft" : data + " m";
     return (<View key={i} centerH style={{ flexDirection: "column", marginTop: "2%" }}>
       <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
     </View>)
@@ -188,16 +216,16 @@ export default function Data() {
         </View>
 
         <View center style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: "3%" }}>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>400+ ft</Text>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{windData.speedAbove + " m/s"}</Text>
+          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{usingFt ? "400+" + " ft" : (400*feetToMeterConversion) + "+ m"}</Text>
+          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{lastWasMS ? (usingKnots ? (windData.speedAbove*msToKnotsConversion) + " knots" : windData.speedAbove + " m/s") : (usingKnots ? (windData.speedAbove) + " knots" : (windData.speedAbove*knotsToMSConversion) + " m/s")}</Text>
           <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionAbove)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionAbove)]} key="dir" /></Text>
-        </View>
-        <Image width={"100%"} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
-        <View center style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "3%" }}>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>0-400 ft</Text>
-          <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{windData.speedGround + " m/s"}</Text>
-          <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionGround)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionGround)]} key="dir" /></Text>
-        </View>
+      </View>
+      <Image width={"100%"} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
+      <View center style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "3%" }}>
+        <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{usingFt ? "0-400" + " ft" : "0-" + (400*feetToMeterConversion) + " m"}</Text>
+        <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{lastWasMS ? (usingKnots ? (windData.speedGround*msToKnotsConversion) + " knots" : windData.speedGround + " m/s") : (usingKnots ? (windData.speedGround) + " knots" : (windData.speedGround*knotsToMSConversion) + " m/s")}</Text>
+        <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionGround)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionGround)]} key="dir" /></Text>
+      </View>
 
         <Text color="white" style={{ fontSize: 10, marginLeft: "3%", marginTop: "3%", marginBottom: "3%" }}>Source: Kanda Weather</Text>
       </View>
