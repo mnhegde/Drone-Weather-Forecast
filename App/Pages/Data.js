@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import View from 'react-native-ui-lib/view';
 import Text from 'react-native-ui-lib/text';
 import { Image, Dialog, PanningProvider } from 'react-native-ui-lib';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Data() {
@@ -33,7 +33,12 @@ export default function Data() {
   }).catch(e => console.log(e))
   setSearch(false)
   }
-
+  const styles = StyleSheet.create({
+    tinyLogo: {
+      width: 50,
+      height: 50,
+    }
+  });
   useEffect(async() => {
     
       let c =  await AsyncStorage.getItem("city")
@@ -41,12 +46,28 @@ export default function Data() {
       await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
     .then(response =>response.json())
     .then(json => {
-      setChanceOfRain(json["forecast_data"]["precipitation"]["chance_of_rain"])
-      setProgressBar(<Progress.Bar progress={json["forecast_data"]["precipitation"]["chance_of_rain"]/100} width={200} color="white" />)
-      setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
-      setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
-    }).catch(e => console.log(e))
-  await fetch("http://20.90.82.229:5000/cities")
+      let data = json["forecast_data"]
+      setChanceOfRain(data["precipitation"]["chance_of_rain"])
+      setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
+      setWindData({speedAbove: data["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: data["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: data["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: data["aviation"]["ground_400ft_wind"]["direction_degrees"]})
+      setLayerData(data["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+      
+      //check for warnings
+      if(data["precipitation"]["warnings"] == "None") setRainWarning(true)
+      if (data["agriculture"]["warnings"] == "None") setFloodWarning(true)
+      
+      /* define conditions for these warnings
+      setWindWarning(true);
+      setTurbulenceWarning(true);
+      */
+      
+      /* for scrolling  
+      <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}> 
+      for everything except footer
+      automaticallyAdjustContentInsets={false}
+      */
+    })
+    fetch("http://20.90.82.229:5000/cities")
     .then(response => response.json())
     .then(json => {
       let renderCountries = json["city_domains"].map((data, i) => {
@@ -66,7 +87,6 @@ export default function Data() {
     if (usingKnots) setUsingKnots(false)
     else setUsingKnots(true)
   }
-
 
   function padding(a, b, c, d) {
     return {
@@ -105,6 +125,7 @@ export default function Data() {
       <Text onPress={null/*NEED A FUNCTION HERE TO UPDATE DATA */} center color='white' style={{ fontSize: 20, borderColor: "#8FD9FF", borderWidth: 2, borderRadius: 9, ...padding(10, 25, 10, 25), width: "35%" }}>{data}</Text>
     </View>)
   })
+
   return (
     <View flex centerH width={"100%"} height="100%">
       <View style={{ position: "absolute" }} width={"100%"} height={"100%"} >
@@ -121,10 +142,9 @@ export default function Data() {
           </View>
         )}
 
-
         <View center style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View centerH centerV style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Image resizeMode={"center"} source={require("../assets/Rainfall.png")} key="Rainfall" />
+            <Image resizeMode={"center"} style={styles.tinyLogo} source={require("../assets/Rainfall.png")} key="Rainfall" />
             <Text color="white" center style={{ fontSize: 25, fontWeight: "bold" }}>Chance of Rain</Text>
           </View>
 
@@ -149,7 +169,7 @@ export default function Data() {
 
 
         <View centerH style={{ flexDirection: "row" }}>
-          <Image resizeMode={"center"} source={require("../assets/Wind.png")} key="Wind" />
+          <Image resizeMode={"center"} style={styles.tinyLogo} source={require("../assets/Wind1.png")} key="Wind" />
           <Text color="white" center style={{ fontSize: 25, fontWeight: "bold" }}>Wind</Text>
         </View>
 
@@ -179,7 +199,7 @@ export default function Data() {
 
 
         <View centerH style={{ flexDirection: "row" }}>
-          <Image resizeMode={"center"} source={require("../assets/Turbulence.png")} key="Turbulence" />
+          <Image resizeMode={"center"} style={styles.tinyLogo} source={require("../assets/Turbulence1.png")} key="Turbulence" />
           <Text color="white" center style={{ fontSize: 25, fontWeight: "bold" }}>Turbulent Atmospheric Layers</Text>
         </View>
         {renderLayers}
@@ -194,7 +214,6 @@ export default function Data() {
               <Text color="white" center style={{ fontSize: 20, fontWeight: "bold" }}>High flood risk</Text>
             </View>
           </View>
-
         )
       }
 
