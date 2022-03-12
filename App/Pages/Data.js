@@ -4,6 +4,7 @@ import Text from 'react-native-ui-lib/text';
 import { Image, Dialog, PanningProvider } from 'react-native-ui-lib';
 import { TouchableOpacity } from 'react-native';
 import * as Progress from 'react-native-progress';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Data() {
   const [search, setSearch] = useState(false)
   const [settings, setSettings] = useState(false)
@@ -18,30 +19,42 @@ export default function Data() {
   const [chanceOfRain, setChanceOfRain] = useState("Loading...")
   const [progressBar, setProgressBar] = useState()
   const [windData, setWindData] = useState({speedAbove: "Loading...", directionAbove: "Loading...", speedGround: "Loading...", directionGround: "Loading..."})
+  const [city, setCity] = useState()
 
+  async function updateCity(c){
+    setCity(c)
+    await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
+  .then(response =>response.json())
+  .then(json => {
+    setChanceOfRain(json["forecast_data"]["precipitation"]["chance_of_rain"])
+    setProgressBar(<Progress.Bar progress={json["forecast_data"]["precipitation"]["chance_of_rain"]/100} width={200} color="white" />)
+    setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
+    setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
+  }).catch(e => console.log(e))
+  setSearch(false)
+  }
 
-  useEffect(() => {
-    async function myFunc() {
-      fetch("http://20.90.82.229:5000/forecast?location=Kaduna")
+  useEffect(async() => {
+    
+      let c =  await AsyncStorage.getItem("city")
+      setCity(c)
+      await fetch(`http://20.90.82.229:5000/forecast?location=${city}`)
     .then(response =>response.json())
     .then(json => {
-      console.log(json);
       setChanceOfRain(json["forecast_data"]["precipitation"]["chance_of_rain"])
       setProgressBar(<Progress.Bar progress={json["forecast_data"]["precipitation"]["chance_of_rain"]/100} width={200} color="white" />)
       setWindData({speedAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["speed_ms"], directionAbove: json["forecast_data"]["aviation"]["above_400ft_wind"]["direction_degrees"], speedGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["speed_ms"], directionGround: json["forecast_data"]["aviation"]["ground_400ft_wind"]["direction_degrees"]})
       setLayerData(json["forecast_data"]["aviation"]["above_400ft_wind"]["turbulent_levels_feet"])
-    })
-    fetch("http://20.90.82.229:5000/cities")
+    }).catch(e => console.log(e))
+  await fetch("http://20.90.82.229:5000/cities")
     .then(response => response.json())
     .then(json => {
-      console.log(json)
       let renderCountries = json["city_domains"].map((data, i) => {
-        return (<TouchableOpacity key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
+        return (<TouchableOpacity onPress={()=>updateCity(data)} key={i} ><Text color="grey" style={{ fontSize: 25, fontWeight: "bold", marginLeft: "3%" }}>{data}</Text></TouchableOpacity>)
       })
       setCountriesJSX(renderCountries)
-    })
-    }    
-    myFunc()
+    }).catch(e => console.log(e))
+
   }, [])
 
   function toggleFt() {
@@ -187,7 +200,7 @@ export default function Data() {
 
       <View width={"100%"} centerV backgroundColor="white" style={{ marginTop: "auto", borderRadius: 15 }} height={"10%"} >
         <View style={{ justifyContent: "space-between", flexDirection: "row", }} >
-          <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>City, Country</Text>
+          <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>{city}</Text>
           <View style={{ flexDirection: "row", marginRight: "3%", justifyContent: "space-between" }} width="20%">
             <TouchableOpacity onPress={() => setSearch(true)}>
               <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
@@ -203,7 +216,7 @@ export default function Data() {
 
       <Dialog visible={search} onDismiss={() => setSearch(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
-          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: "2px", borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
+          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
             <Image resizeMode={"stretch"} source={require("../assets/Search.png")} key="Search" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Location Select</Text>
           </View>
@@ -213,7 +226,7 @@ export default function Data() {
 
       <Dialog visible={settings} onDismiss={() => setSettings(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
-          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: "2px", borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
+          <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
             <Image resizeMode={"stretch"} source={require("../assets/Settings.png")} key="Settings" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Settings</Text>
           </View>
