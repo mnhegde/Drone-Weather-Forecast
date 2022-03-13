@@ -28,7 +28,7 @@ export default function Index() {
             <Text color="white" center style={{ fontSize: 50, fontWeight: "bold" }}>DroneScout</Text>
             <Text center color="white" style={{ fontSize: 15 }}>Scout the weather before you take flight!</Text>
             <View backgroundColor='white' height={"5%"} center style={{ marginTop: "5%", borderRadius: 20, flexDirection: "row", justifyContent: "space-between" }}>
-                <SelectDropdown buttonStyle={{backgroundColor: "white", height: "70%", borderRadius: 20, width: "70%"}}  data={cities} onSelect={(selectedItem, index) => {AsyncStorage.setItem("city",selectedItem)}}/>
+                <SelectDropdown rowTextStyle={{color: "#707070"}} dropdownStyle={{borderRadius: 20}} buttonTextStyle={{color: "#707070"}} buttonStyle={{backgroundColor: "white", height: "70%", borderRadius: 20, width: "70%"}}  data={cities} onSelect={(selectedItem, index) => {AsyncStorage.setItem("city",selectedItem)}}/>
                 <Link to="/data">
                     <Image style={{ marginRight: "2%", }} source={require("../assets/arrow.png")} key="arrow" />
                 </Link>

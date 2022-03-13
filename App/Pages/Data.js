@@ -31,7 +31,6 @@ export default function Data() {
     await fetch(`http://20.90.82.229:5000/forecast?location=${c}`)
   .then(response =>response.json())
   .then(json => {
-    console.log(json)
     let data = json["forecast_data"]
       setChanceOfRain(data["precipitation"]["chance_of_rain"])
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
@@ -59,7 +58,6 @@ export default function Data() {
       await fetch(`http://20.90.82.229:5000/forecast?location=${c}`)
     .then(response =>response.json())
     .then(json => {
-      console.log(json)
       let data = json["forecast_data"]
       setChanceOfRain(data["precipitation"]["chance_of_rain"])
       setProgressBar(<Progress.Bar progress={data["precipitation"]["chance_of_rain"]/100} width={200} color="#8FD9FF" />)
@@ -220,7 +218,7 @@ export default function Data() {
           <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{lastWasMS ? (usingKnots ? (windData.speedAbove*msToKnotsConversion) + " knots" : windData.speedAbove + " m/s") : (usingKnots ? (windData.speedAbove) + " knots" : (windData.speedAbove*knotsToMSConversion) + " m/s")}</Text>
           <Text color="white" style={{ fontSize: 20, marginRight: "3%" }}>{getDir(windData.directionAbove)} <Image resizeMode={"center"} source={arrows[getDir(windData.directionAbove)]} key="dir" /></Text>
       </View>
-      <Image width={"100%"} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
+      <Image style={{width: "100%"}} resizeMode={"stretch"} source={require("../assets/Seperator.png")} key="Rainfall" />
       <View center style={{ flexDirection: "row", justifyContent: "space-between", marginTop: "3%" }}>
         <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{usingFt ? "0-400" + " ft" : "0-" + (400*feetToMeterConversion) + " m"}</Text>
         <Text color="white" style={{ fontSize: 20, marginLeft: "3%" }}>{lastWasMS ? (usingKnots ? (windData.speedGround*msToKnotsConversion) + " knots" : windData.speedGround + " m/s") : (usingKnots ? (windData.speedGround) + " knots" : (windData.speedGround*knotsToMSConversion) + " m/s")}</Text>
@@ -259,7 +257,7 @@ export default function Data() {
         )
       }
 
-      <View width={"100%"} centerV backgroundColor="white" style={{ marginTop: "auto", borderRadius: 15 }} height={"10%"} >
+      <View width={"100%"} centerV backgroundColor="white" style={{ marginTop: "auto", borderTopLeftRadius: 15, borderTopRightRadius: 15}} height={"10%"} >
         <View style={{ justifyContent: "space-between", flexDirection: "row", }} >
           <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>{city}</Text>
           <View style={{ flexDirection: "row", marginRight: "3%", justifyContent: "space-between" }} width="20%">
@@ -288,7 +286,7 @@ export default function Data() {
       <Dialog visible={settings} onDismiss={() => setSettings(false)} panDirection={PanningProvider.Directions.DOWN}>
         {<View width={"100%"} backgroundColor="white" style={{ borderRadius: 15 }}>
           <View centerH style={{ flexDirection: "row", marginLeft: "3%", marginRight: "3%", borderBottomWidth: 2, borderBottomColor: "#E6E6E6", borderBottomRadius: "5%" }}>
-            <Image resizeMode={"stretch"} style={styles.tinyLogo} source={require("../assets/Settings.png")} key="Settings" />
+            <Image   source={require("../assets/Settings.png")} key="Settings" />
             <Text color="grey" style={{ fontSize: 35, fontWeight: "bold", marginLeft: "3%" }}>Settings</Text>
           </View>
           <View style={{ flexDirection: "column", marginLeft: "3%", marginRight: "3%" }}>
